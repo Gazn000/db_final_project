@@ -1,13 +1,13 @@
 CREATE TABLE diabetes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    HighBP TINYINT,                    -- 血壓水平（（0:正常 1:高血壓 ）
-    HighChol TINYINT,                  -- 膽固醇水平（0:正常 1:高膽固醇 ）
-    BMI DECIMAL(5,2),                  -- 身體質量指數（BMI）
-    Smoker TINYINT,                    -- 吸煙狀態（0: 非吸煙者, 1: 吸煙者）
-    Stroke TINYINT,                    -- 中風(0:無 1:有)
-    HeartDiseaseorAttack TINYINT,      -- 心血管疾病狀態（0: 無, 1: 有）
-    PhysActivity TINYINT,              -- 身體活動狀態（0: 不活躍, 1: 活躍）
-    HvyAlcoholConsump TINYINT,         -- 酒精消費（0: 不消費, 1: 消費）
+    HighBP TINYINT,                     -- 血壓水平（（0:正常 1:高血壓 ）
+    HighChol TINYINT,                   -- 膽固醇水平（0:正常 1:高膽固醇 ）
+    BMI DECIMAL(5,2),                   -- 身體質量指數（BMI）
+    Smoker TINYINT,                     -- 吸煙狀態（0: 非吸煙者, 1: 吸煙者）
+    Stroke TINYINT,                     -- 中風(0:無 1:有)
+    HeartDiseaseorAttack TINYINT,       -- 心血管疾病狀態（0: 無, 1: 有）
+    PhysActivity TINYINT,               -- 身體活動狀態（0: 不活躍, 1: 活躍）
+    HvyAlcoholConsump TINYINT,          -- 酒精消費（0: 不消費, 1: 消費）
     Sex TINYINT,                        -- 性別(0:female 1:male)
     Age TINYINT                   
 );
