@@ -116,9 +116,15 @@ def create_data():
 
         # 3. 建立資料庫連線
         connection = get_db_connection()
-        cursor = connection.cursor()
+        cursor = connection.cursor(dictionary=True)
 
-        # 4. 準備 SQL 指令，包含 account_id
+        # 4. 查詢當前用戶的最大 record_id
+        cursor.execute("SELECT MAX(record_id) AS max_record FROM users WHERE account_id = %s", (account_id,))
+        result = cursor.fetchone()
+        max_record = result['max_record'] if result['max_record'] is not None else 0
+        new_record_id = max_record + 1
+
+        # 5. 準備 SQL 指令，包含 account_id 和 record_id
         sql = """
             INSERT INTO users (
                 height,
@@ -131,11 +137,12 @@ def create_data():
                 heavyAlcohol,
                 smoking,
                 stroke,
-                account_id
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                account_id,
+                record_id
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
-        # 5. 從 data 中取得欄位，這些 key 要和前端送過來的 JSON 一致
+        # 6. 從 data 中取得欄位，這些 key 要和前端送過來的 JSON 一致
         height = float(data.get('height'))
         weight = float(data.get('weight'))
         age = int(data.get('age'))
@@ -147,7 +154,7 @@ def create_data():
         smoking = bool(data.get('smoking'))
         stroke = bool(data.get('stroke'))
 
-        # 6. 執行 SQL
+        # 7. 執行 SQL
         cursor.execute(sql, (
             height,
             weight,
@@ -159,7 +166,8 @@ def create_data():
             heavyAlcohol,
             smoking,
             stroke,
-            account_id  # 添加 account_id
+            account_id,
+            new_record_id  # 添加 record_id
         ))
         connection.commit()
 
@@ -167,6 +175,175 @@ def create_data():
         connection.close()
 
         return jsonify({"message": "資料成功插入！"}), 200
+
+    except mysql.connector.Error as db_err:
+        return jsonify({"error": f"資料庫錯誤: {db_err}"}), 500
+    except ValueError as ve:
+        return jsonify({"error": f"資料類型錯誤: {ve}"}), 400
+    except Exception as e:
+        return jsonify({"error": f"意外錯誤: {e}"}), 500
+
+# 新增：修改資料頁面
+@app.route("/modify_page", methods=["GET"])
+def modify_page():
+    if "user_id" not in session:
+        flash("請先登入。", "warning")
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    
+    try:
+        # 建立資料庫連線
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        
+        # 獲取所有使用者的資料
+        cursor.execute("""
+            SELECT record_id, height, weight, age, gender, highBloodPressure, highBloodSugar, 
+                   highCholesterol, heavyAlcohol, smoking, stroke, created_at 
+            FROM users 
+            WHERE account_id = %s
+            ORDER BY record_id DESC
+        """, (user_id,))
+        user_data = cursor.fetchall()
+        
+        cursor.close()
+        connection.close()
+        
+        return render_template("modify.html", user_data=user_data)
+    
+    except mysql.connector.Error as db_err:
+        flash(f"資料庫錯誤: {db_err}", "danger")
+        return redirect(url_for('personal'))
+    except Exception as e:
+        flash(f"意外錯誤: {e}", "danger")
+        return redirect(url_for('personal'))
+
+# 修改：更新資料頁面，接受 record_id
+@app.route("/update_page/<int:record_id>", methods=["GET"])
+def update_page(record_id):
+    if "user_id" not in session:
+        flash("請先登入。", "warning")
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    
+    try:
+        # 建立資料庫連線
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        
+        # 獲取指定的 users 記錄
+        cursor.execute("""
+            SELECT * FROM users 
+            WHERE record_id = %s AND account_id = %s
+        """, (record_id, user_id))
+        user_data = cursor.fetchone()
+        
+        cursor.close()
+        connection.close()
+        
+        if not user_data:
+            flash("找不到指定的資料或您沒有權限修改。", "danger")
+            return redirect(url_for('modify_page'))
+        
+        return render_template("update.html", user_data=user_data)
+    
+    except mysql.connector.Error as db_err:
+        flash(f"資料庫錯誤: {db_err}", "danger")
+        return redirect(url_for('personal'))
+    except Exception as e:
+        flash(f"意外錯誤: {e}", "danger")
+        return redirect(url_for('personal'))
+
+# 修改：處理資料更新
+@app.route("/update", methods=["POST"])
+def update_data():
+    """
+    從前端接收 JSON 格式的資料 (record_id, height, weight, age...等)，
+    並更新 MySQL 資料庫的 users 表中的指定記錄。
+    """
+    if "user_id" not in session:
+        return jsonify({"error": "未登入，請先登入。"}), 401
+
+    try:
+        # 1. 從 request 中取得 JSON
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "未收到 JSON 資料"}), 400
+
+        # 2. 從 JSON 中取得 record_id
+        record_id = data.get('record_id')
+        if record_id is None:
+            return jsonify({"error": "未提供記錄ID"}), 400
+
+        # 3. 從 session 中取得 user_id
+        account_id = session['user_id']
+
+        # 4. 建立資料庫連線
+        connection = get_db_connection()
+        cursor = connection.cursor()
+
+        # 5. 確認該記錄屬於當前用戶
+        cursor.execute("""
+            SELECT id FROM users 
+            WHERE record_id = %s AND account_id = %s
+        """, (record_id, account_id))
+        exists = cursor.fetchone()
+        if not exists:
+            cursor.close()
+            connection.close()
+            return jsonify({"error": "找不到指定的資料或您沒有權限修改。"}), 400
+
+        # 6. 準備 SQL 指令，更新指定的記錄
+        sql = """
+            UPDATE users SET
+                height = %s,
+                weight = %s,
+                age = %s,
+                gender = %s,
+                highBloodPressure = %s,
+                highBloodSugar = %s,
+                highCholesterol = %s,
+                heavyAlcohol = %s,
+                smoking = %s,
+                stroke = %s
+            WHERE record_id = %s AND account_id = %s
+        """
+
+        # 7. 從 data 中取得欄位，這些 key 要和前端送過來的 JSON 一致
+        height = float(data.get('height'))
+        weight = float(data.get('weight'))
+        age = int(data.get('age'))
+        gender = data.get('gender')
+        highBloodPressure = bool(data.get('highBloodPressure'))
+        highBloodSugar = bool(data.get('highBloodSugar'))
+        highCholesterol = bool(data.get('highCholesterol'))
+        heavyAlcohol = bool(data.get('heavyAlcohol'))
+        smoking = bool(data.get('smoking'))
+        stroke = bool(data.get('stroke'))
+
+        # 8. 執行 SQL
+        cursor.execute(sql, (
+            height,
+            weight,
+            age,
+            gender,
+            highBloodPressure,
+            highBloodSugar,
+            highCholesterol,
+            heavyAlcohol,
+            smoking,
+            stroke,
+            record_id,  # 指定要更新的記錄 record_id
+            account_id  # 確保是當前用戶
+        ))
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+
+        return jsonify({"message": "資料成功更新！"}), 200
 
     except mysql.connector.Error as db_err:
         return jsonify({"error": f"資料庫錯誤: {db_err}"}), 500
