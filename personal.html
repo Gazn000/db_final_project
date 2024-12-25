@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        h2 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>個人資料</h2>
+
+        <!-- 四個按鈕：Create, Update, Delete, Predict -->
+        <button type="button" onclick="window.location.href='create.html'">Create</button>
+        <button type="button" onclick="window.location.href='update.html'">Update</button>
+        <button type="button" onclick="deleteData()">Delete</button>
+        <button type="button" onclick="predictData()">Predict</button>
+
+        <script>
+            // 簡單示例事件處理函數
+            function deleteData() {
+                alert("Delete button clicked!");
+            }
+
+            function predictData() {
+                alert("Predict button clicked!");
+            }
+        </script>
+    </div>
+
+    <footer>
+        &copy; 2024 NYCU DB HW3 112550082 李馨亞. All rights reserved.
+    </footer>
+</body>
+</html>
