@@ -1,99 +1,142 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <h1>Create Data</h1>
-    <form id="createForm">
+    <div class="form-container">
+        <h1>Create Data</h1>
+        <form id="createForm">
+            <label for="height">Height (cm): </label>
+            <input type="number" id="height" name="height" required>
 
-        <!-- 數值輸入: 身高, 體重, 年齡 -->
-        <label for="height">身高(cm): </label>
-        <input type="number" id="height" name="height" placeholder="請輸入身高" required>
-        <br><br>
+            <label for="weight">Weight (kg): </label>
+            <input type="number" id="weight" name="weight" required>
 
-        <label for="weight">體重(kg): </label>
-        <input type="number" id="weight" name="weight" placeholder="請輸入體重" required>
-        <br><br>
+            <label for="age">Age: </label>
+            <input type="number" id="age" name="age" required>
 
-        <label for="age">年齡(year): </label>
-        <input type="number" id="age" name="age" placeholder="請輸入年齡" required>
-        <br><br>
+            <label for="gender">Gender: </label>
+            <select id="gender" name="gender" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
 
-        <!-- 選單: 性別(男女) -->
-        <label for="gender">性別: </label>
-        <select id="gender" name="gender" required>
-            <option value="">請選擇</option>
-            <option value="0">女</option>
-            <option value="1">男</option>
-        </select>
-        <br><br>
+            <label for="highBloodPressure">High Blood Pressure: </label>
+            <select id="highBloodPressure" name="highBloodPressure" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
 
-        <!-- 選單: 高血壓(0、1) -->
-        <label for="highBloodPressure">高血壓: </label>
-        <select id="highBloodPressure" name="highBloodPressure" required>
-            <option value="">請選擇</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
-        </select>
-        <br><br>
+            <label for="highBloodSugar">High Blood Sugar: </label>
+            <select id="highBloodSugar" name="highBloodSugar" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
 
-        <!-- 選單: 高血糖(0、1) -->
-        <label for="highBloodSugar">高血糖: </label>
-        <select id="highBloodSugar" name="highBloodSugar" required>
-            <option value="">請選擇</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
-        </select>
-        <br><br>
+            <label for="highCholesterol">High Cholesterol: </label>
+            <select id="highCholesterol" name="highCholesterol" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
 
-        <!-- 選單: 高膽固醇(0、1) -->
-        <label for="highCholesterol">高膽固醇: </label>
-        <select id="highCholesterol" name="highCholesterol" required>
-            <option value="">請選擇</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
-        </select>
-        <br><br>
+            <label for="heavyAlcohol">Heavy Alcohol Use: </label>
+            <select id="heavyAlcohol" name="heavyAlcohol" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
 
-        <!-- 選單: 酗酒(0、1) -->
-        <label for="heavyAlcohol">酗酒: </label>
-        <select id="heavyAlcohol" name="heavyAlcohol" required>
-            <option value="">請選擇</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
-        </select>
-        <br><br>
+            <label for="smoking">Smoking: </label>
+            <select id="smoking" name="smoking" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
 
-        <!-- 選單: 抽菸(0、1) -->
-        <label for="smoking">抽菸: </label>
-        <select id="smoking" name="smoking" required>
-            <option value="">請選擇</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
-        </select>
-        <br><br>
+            <label for="stroke">Stroke: </label>
+            <select id="stroke" name="stroke" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
 
-        <!-- 選單: 中風(0、1) -->
-        <label for="stroke">中風: </label>
-        <select id="stroke" name="stroke" required>
-            <option value="">請選擇</option>
-            <option value="0">0</option>
-            <option value="1">1</option>
-        </select>
-        <br><br>
-
-        <!-- 最陽春的「Create」按鈕 -->
-        <button type="submit">Create</button>
-    </form>
+            <button type="submit">Create</button>
+        </form>
+        <div class="message" id="message"></div>
+    </div>
 
     <script>
-        // 這裡提供最陽春的提交事件示例，可依需要改成 fetch/AJAX 等
-        document.getElementById('createForm').addEventListener('submit', function(e) {
+        document.getElementById('createForm').addEventListener('submit', function (e) {
             e.preventDefault(); // 阻止表單預設行為
 
-            // 簡易獲取表單數值，您也可使用 FormData 或其他方式
+            // 收集表單數據
             const formData = {
                 height: document.getElementById('height').value,
                 weight: document.getElementById('weight').value,
@@ -107,9 +150,33 @@
                 stroke: document.getElementById('stroke').value
             };
 
-            // 這裡只是示範；實際可用 fetch/axios 將資料送到後端
-            console.log("表單提交資料:", formData);
-            alert("Create clicked! 送出資料至後端處理...");
+            // 發送 POST 請求到 /create
+            fetch('/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById('message');
+                if (data.message) {
+                    messageDiv.textContent = data.message;
+                    messageDiv.className = 'message success';
+                    // 重置表單
+                    document.getElementById('createForm').reset();
+                } else if (data.error) {
+                    messageDiv.textContent = 'Error: ' + data.error;
+                    messageDiv.className = 'message error';
+                }
+            })
+            .catch(error => {
+                const messageDiv = document.getElementById('message');
+                messageDiv.textContent = 'Error: Unable to connect to the server.';
+                messageDiv.className = 'message error';
+                console.error('Error:', error);
+            });
         });
     </script>
 </body>

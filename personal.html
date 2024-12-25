@@ -28,20 +28,19 @@
             color: #4CAF50;
         }
 
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
+        .signup-link p {
+            margin-top: 20px;
             font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px;
-            transition: background-color 0.3s ease;
         }
 
-        button:hover {
-            background-color: #45a049;
+        .signup-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
         }
 
         footer {
@@ -56,22 +55,11 @@
     <div class="container">
         <h2>個人資料</h2>
 
-        <!-- 四個按鈕：Create, Update, Delete, Predict -->
-        <button type="button" onclick="window.location.href='create.html'">Create</button>
-        <button type="button" onclick="window.location.href='update.html'">Update</button>
-        <button type="button" onclick="deleteData()">Delete</button>
-        <button type="button" onclick="predictData()">Predict</button>
-
-        <script>
-            // 簡單示例事件處理函數
-            function deleteData() {
-                alert("Delete button clicked!");
-            }
-
-            function predictData() {
-                alert("Predict button clicked!");
-            }
-        </script>
+        <!-- 導航到 Create 頁面 -->
+        <div class="signup-link">
+           <p><a href="{{ url_for('create_page') }}">Create</a> your data</p>
+           
+        </div>
     </div>
 
     <footer>
