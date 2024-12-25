@@ -1,181 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Data</title>
+    <title>更新資料</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #eef2f3;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .form-container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-        }
-
         label {
             display: block;
-            margin-top: 15px;
-            font-weight: bold;
+            margin-top: 10px;
         }
-
         input, select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 5px;
+            width: 200px;
         }
-
         button {
-            margin-top: 20px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .message {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 16px;
-        }
-
-        .success {
-            color: green;
-        }
-
-        .error {
-            color: red;
+            margin-top: 15px;
+            padding: 8px 16px;
         }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h1>Update Data</h1>
-        <form id="createForm">
-            <label for="height">Height (cm): </label>
-            <input type="number" id="height" name="height" required>
-
-            <label for="weight">Weight (kg): </label>
-            <input type="number" id="weight" name="weight" required>
-
-            <label for="age">Age: </label>
-            <input type="number" id="age" name="age" required>
-
-            <label for="gender">Gender: </label>
-            <select id="gender" name="gender" required>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
+    <h1>更新用戶資料</h1>
+    <a href="{{ url_for('modify_page') }}">返回修改頁面</a><br><br>
+    <form id="updateForm">
+        <input type="hidden" name="record_id" value="{{ user_data.record_id }}">
+        
+        <label>身高 (cm): <input type="number" name="height" step="0.1" required value="{{ user_data.height }}"></label>
+        <label>體重 (kg): <input type="number" name="weight" step="0.1" required value="{{ user_data.weight }}"></label>
+        <label>年齡: <input type="number" name="age" required value="{{ user_data.age }}"></label>
+        <label>性別:
+            <select name="gender" required>
+                <option value="male" {% if user_data.gender == 'male' %}selected{% endif %}>男</option>
+                <option value="female" {% if user_data.gender == 'female' %}selected{% endif %}>女</option>
+                <option value="other" {% if user_data.gender == 'other' %}selected{% endif %}>其他</option>
             </select>
-
-            <label for="highBloodPressure">High Blood Pressure: </label>
-            <select id="highBloodPressure" name="highBloodPressure" required>
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select>
-
-            <label for="highBloodSugar">High Blood Sugar: </label>
-            <select id="highBloodSugar" name="highBloodSugar" required>
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select>
-
-            <label for="highCholesterol">High Cholesterol: </label>
-            <select id="highCholesterol" name="highCholesterol" required>
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select>
-
-            <label for="heavyAlcohol">Heavy Alcohol Use: </label>
-            <select id="heavyAlcohol" name="heavyAlcohol" required>
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select>
-
-            <label for="smoking">Smoking: </label>
-            <select id="smoking" name="smoking" required>
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select>
-
-            <label for="stroke">Stroke: </label>
-            <select id="stroke" name="stroke" required>
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-            </select>
-
-            <button type="submit">Create</button>
-        </form>
-        <div class="message" id="message"></div>
-    </div>
+        </label>
+        <label>高血壓: <input type="checkbox" name="highBloodPressure" {% if user_data.highBloodPressure %}checked{% endif %}></label>
+        <label>高血糖: <input type="checkbox" name="highBloodSugar" {% if user_data.highBloodSugar %}checked{% endif %}></label>
+        <label>高膽固醇: <input type="checkbox" name="highCholesterol" {% if user_data.highCholesterol %}checked{% endif %}></label>
+        <label>大量飲酒: <input type="checkbox" name="heavyAlcohol" {% if user_data.heavyAlcohol %}checked{% endif %}></label>
+        <label>吸菸: <input type="checkbox" name="smoking" {% if user_data.smoking %}checked{% endif %}></label>
+        <label>中風: <input type="checkbox" name="stroke" {% if user_data.stroke %}checked{% endif %}></label>
+        <button type="submit">更新</button>
+    </form>
 
     <script>
-        document.getElementById('createForm').addEventListener('submit', function (e) {
-            e.preventDefault(); // 阻止表單預設行為
+        document.getElementById('updateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
 
-            // 收集表單數據
-            const formData = {
-                height: document.getElementById('height').value,
-                weight: document.getElementById('weight').value,
-                age: document.getElementById('age').value,
-                gender: document.getElementById('gender').value,
-                highBloodPressure: document.getElementById('highBloodPressure').value,
-                highBloodSugar: document.getElementById('highBloodSugar').value,
-                highCholesterol: document.getElementById('highCholesterol').value,
-                heavyAlcohol: document.getElementById('heavyAlcohol').value,
-                smoking: document.getElementById('smoking').value,
-                stroke: document.getElementById('stroke').value
+            const formData = new FormData(event.target);
+            const data = {
+                record_id: formData.get('record_id'),
+                height: formData.get('height'),
+                weight: formData.get('weight'),
+                age: formData.get('age'),
+                gender: formData.get('gender'),
+                highBloodPressure: formData.get('highBloodPressure') === 'on',
+                highBloodSugar: formData.get('highBloodSugar') === 'on',
+                highCholesterol: formData.get('highCholesterol') === 'on',
+                heavyAlcohol: formData.get('heavyAlcohol') === 'on',
+                smoking: formData.get('smoking') === 'on',
+                stroke: formData.get('stroke') === 'on'
             };
 
-            // 發送 POST 請求到 /create
-            fetch('/create', {
+            fetch('{{ url_for("update_data") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(data)
             })
             .then(response => response.json())
-            .then(data => {
-                const messageDiv = document.getElementById('message');
-                if (data.message) {
-                    messageDiv.textContent = data.message;
-                    messageDiv.className = 'message success';
-                    // 重置表單
-                    document.getElementById('createForm').reset();
-                } else if (data.error) {
-                    messageDiv.textContent = 'Error: ' + data.error;
-                    messageDiv.className = 'message error';
+            .then(result => {
+                if (result.message) {
+                    alert(result.message);
+                    // 重定向回修改頁面
+                    window.location.href = "{{ url_for('modify_page') }}";
+                } else if (result.error) {
+                    alert('錯誤: ' + result.error);
                 }
             })
             .catch(error => {
-                const messageDiv = document.getElementById('message');
-                messageDiv.textContent = 'Error: Unable to connect to the server.';
-                messageDiv.className = 'message error';
                 console.error('Error:', error);
+                alert('發生錯誤，請稍後再試。');
             });
         });
     </script>

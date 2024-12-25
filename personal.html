@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Page</title>
+    <title>個人頁面</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -57,13 +57,10 @@
 
         <!-- 導航到 Create 頁面 -->
         <div class="signup-link">
-           <p><a href="{{ url_for('create_page') }}">Create</a> your data</p>
-           
+           <p><a href="{{ url_for('create_page') }}">新增</a> 您的資料</p>
+           <p><a href="{{ url_for('modify_page') }}">修改</a> 您的資料</p>
         </div>
     </div>
 
-    <footer>
-        &copy; 2024 NYCU DB HW3 112550082 李馨亞. All rights reserved.
-    </footer>
 </body>
 </html>

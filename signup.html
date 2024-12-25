@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
+    <title>註冊</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -115,40 +115,35 @@
 </head>
 <body>
     <div class="container">
-        <h2>Sign Up</h2>
+        <h2>註冊</h2>
         <form method="POST">
             <div>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" placeholder="Enter a username" required>
+                <label for="username">用戶名：</label>
+                <input type="text" id="username" name="username" placeholder="輸入用戶名" required>
             </div>
             <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" placeholder="Enter a password" required>
+                <label for="password">密碼：</label>
+                <input type="password" id="password" name="password" placeholder="輸入密碼" required>
             </div>
-            <button type="submit" class="signup-btn">Sign Up</button>
+            <button type="submit" class="signup-btn">註冊</button>
         </form>
 
         <div class="back-to-login">
-            <p>Already have an account? <a href="/">Back to Login</a></p>
+            <p>已經有帳號了嗎？<a href="/">返回登入</a></p>
         </div>
 
-        
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    <ul>
-                        {% for category, message in messages %}
-                            <li class="{{ category }}">{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% endwith %}
-        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                <ul>
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% endwith %}
     </div>
 
-    <footer>
-        &copy; 2024 NYCU DB HW3 112550082 李馨亞. All rights reserved.
-    </footer>
 </body>
 </html>
