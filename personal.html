@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        h2 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        .signup-link p {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .signup-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>個人資料</h2>
+
+        <!-- 導航到 Create Modify Delete 頁面 -->
+        <div class="signup-link">
+           <p><a href="{{ url_for('create_page') }}">新增</a> 您的資料</p>
+           <p><a href="{{ url_for('modify_page') }}">修改</a> 您的資料</p> 
+           <p><a href="{{ url_for('delete_page', user_id=user_id) }}">刪除</a> 您的資料</p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 NYCU DB HW3 112550082 李馨亞. All rights reserved.
+    </footer>
+</body>
+</html>
