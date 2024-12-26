@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <script>
+        // 查詢 Smoking 百分比
+        function fetchSmokingPercentage() {
+            const smokeValue = document.getElementById("smoke").value;
+
+            if (smokeValue === "") {
+                alert("Please select a valid option.");
+                return;
+            }
+
+            fetch(`/get_percentage?smoke=${smokeValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("smokingResult").textContent =
+                            `有${data.percentage}%的人跟你一樣`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred. Please try again.");
+                });
+        }
+
+        // 查詢 BMI 百分比
+        function fetchBMIPercentage() {
+            const weight = document.getElementById("weight").value;
+            const height = document.getElementById("height").value;
+
+            if (!weight || !height) {
+                alert("Please enter both weight and height.");
+                return;
+            }
+
+            fetch(`/get_bmi_percentage?weight=${weight}&height=${height}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("bmiResult").textContent =
+                            `Your BMI: ${data.input_bmi}, Total patients: ${data.total_count}, Matching: ${data.matching_count}, Percentage: ${data.percentage}%`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred. Please try again.");
+                });
+        }
+
+        // 查詢 Alcohol 百分比
+        function fetchAlcoholPercentage() {
+            const alcohol = document.getElementById("alcohol").value;
+
+            if (!alcohol) {
+                alert("Please enter alcohol consumption.");
+                return;
+            }
+
+            fetch(`/get_alcohol_percentage?alcohol=${alcohol}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("alcoholResult").textContent =
+                            `Your Alcohol Consumption: ${data.input_alcohol}, Total patients: ${data.total_count}, Matching: ${data.matching_count}, Percentage: ${data.percentage}%`;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred. Please try again.");
+                });
+        }
+    </script>
+</head>
+<body>
+    <h1>Smoking, BMI, and Alcohol Statistics</h1>
+
+    <!-- 下拉選單：查詢 Smoking 百分比 -->
+    <h2>Smoking Percentage</h2>
+    <label for="smoke">Filter by Smoking:</label>
+    <select name="smoke" id="smoke">
+        <option value="">All</option>
+        <option value="0">No (0)</option>
+        <option value="1">Yes (1)</option>
+    </select>
+    <button type="button" onclick="fetchSmokingPercentage()">Check Smoking Percentage</button>
+    <p id="smokingResult">Select an option to see the percentage.</p>
+
+    <hr>
+
+    <!-- 表單：查詢 BMI 百分比 -->
+    <h2>BMI Percentage</h2>
+    <label for="weight">Weight (kg):</label>
+    <input type="number" id="weight" name="weight" step="0.1" placeholder="e.g., 70">
+    <label for="height">Height (cm):</label>
+    <input type="number" id="height" name="height" step="0.1" placeholder="e.g., 170">
+    <button type="button" onclick="fetchBMIPercentage()">Check BMI Percentage</button>
+    <p id="bmiResult">Enter your weight and height to calculate BMI and see the percentage.</p>
+
+    <hr>
+
+    <!-- 表單：查詢 Alcohol 百分比 -->
+    <h2>Alcohol Consumption Percentage</h2>
+    <label for="alcohol">Weekiy Alcohol Consumption (units):</label>
+    <input type="number" id="alcohol" name="alcohol" step="0.1" placeholder="e.g., 10">
+    <button type="button" onclick="fetchAlcoholPercentage()">Check Alcohol Percentage</button>
+    <p id="alcoholResult">Enter weekly alcohol consumption to see the percentage.</p>
+</body>
+</html>
