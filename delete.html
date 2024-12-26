@@ -1,9 +1,10 @@
+<!-- templates/delete.html -->
 <!DOCTYPE html>
 <html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8">
-    <title>修改資料</title>
+    <title>刪除資料</title>
     <style>
         table {
             width: 100%;
@@ -21,22 +22,25 @@
             background-color: #f2f2f2;
         }
 
-        a.button {
-            padding: 6px 12px;
-            background-color: #4CAF50;
+        .delete-button {
+            background-color: #f44336;
+            /* 紅色 */
             color: white;
-            text-decoration: none;
+            border: none;
+            padding: 8px 16px;
             border-radius: 4px;
+            cursor: pointer;
         }
 
-        a.button:hover {
-            background-color: #45a049;
+        .delete-button:hover {
+            background-color: #d32f2f;
+            /* 深紅色 */
         }
     </style>
 </head>
 
 <body>
-    <h1>修改您的資料</h1>
+    <h1>刪除您的資料</h1>
     <a href="{{ url_for('personal') }}">返回個人資料頁面</a><br><br>
     {% if user_data %}
     <table>
@@ -54,7 +58,7 @@
                 <th>大量飲酒</th>
                 <th>吸菸</th>
                 <th>中風</th>
-                <th>修改</th>
+                <th>刪除</th>
             </tr>
         </thead>
         <tbody>
@@ -72,15 +76,20 @@
                 <td>{{ '是' if record.heavyAlcohol else '否' }}</td>
                 <td>{{ '是' if record.smoking else '否' }}</td>
                 <td>{{ '是' if record.stroke else '否' }}</td>
-                <!-- 修改按鈕傳遞 record_id -->
-                <td><a class="button" href="{{ url_for('update_page', record_id=record.record_id) }}">修改</a></td>
+                <td>
+                    <form action="{{ url_for('delete_user', record_id=record.record_id) }}" method="POST"
+                        onsubmit="return confirm('確定要刪除這筆資料嗎？');">
+                        <button type="submit" class="delete-button">刪除</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-    <p>您尚未創建任何資料。</p>
+    <p class="no-data">尚未新增任何資料。</p>
     {% endif %}
+
 </body>
 
 </html>
