@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>更新資料</title>
+    <style>
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            padding: 5px;
+            width: 200px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 8px 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>更新用戶資料</h1>
+    <a href="{{ url_for('modify_page') }}">返回修改頁面</a><br><br>
+    <form id="updateForm">
+        <input type="hidden" name="record_id" value="{{ user_data.record_id }}">
+        
+        <label>身高 (cm): <input type="number" name="height" step="0.1" required value="{{ user_data.height }}"></label>
+        <label>體重 (kg): <input type="number" name="weight" step="0.1" required value="{{ user_data.weight }}"></label>
+        <label>年齡: <input type="number" name="age" required value="{{ user_data.age }}"></label>
+        <label>性別:
+            <select name="gender" required>
+                <option value="male" {% if user_data.gender == 'male' %}selected{% endif %}>男</option>
+                <option value="female" {% if user_data.gender == 'female' %}selected{% endif %}>女</option>
+                <option value="other" {% if user_data.gender == 'other' %}selected{% endif %}>其他</option>
+            </select>
+        </label>
+        <label>高血壓: <input type="checkbox" name="highBloodPressure" {% if user_data.highBloodPressure %}checked{% endif %}></label>
+        <label>高血糖: <input type="checkbox" name="highBloodSugar" {% if user_data.highBloodSugar %}checked{% endif %}></label>
+        <label>高膽固醇: <input type="checkbox" name="highCholesterol" {% if user_data.highCholesterol %}checked{% endif %}></label>
+        <label>大量飲酒: <input type="checkbox" name="heavyAlcohol" {% if user_data.heavyAlcohol %}checked{% endif %}></label>
+        <label>吸菸: <input type="checkbox" name="smoking" {% if user_data.smoking %}checked{% endif %}></label>
+        <label>中風: <input type="checkbox" name="stroke" {% if user_data.stroke %}checked{% endif %}></label>
+        <button type="submit">更新</button>
+    </form>
+
+    <script>
+        document.getElementById('updateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = {
+                record_id: formData.get('record_id'),
+                height: formData.get('height'),
+                weight: formData.get('weight'),
+                age: formData.get('age'),
+                gender: formData.get('gender'),
+                highBloodPressure: formData.get('highBloodPressure') === 'on',
+                highBloodSugar: formData.get('highBloodSugar') === 'on',
+                highCholesterol: formData.get('highCholesterol') === 'on',
+                heavyAlcohol: formData.get('heavyAlcohol') === 'on',
+                smoking: formData.get('smoking') === 'on',
+                stroke: formData.get('stroke') === 'on'
+            };
+
+            fetch('{{ url_for("update_data") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    alert(result.message);
+                    // 重定向回修改頁面
+                    window.location.href = "{{ url_for('modify_page') }}";
+                } else if (result.error) {
+                    alert('錯誤: ' + result.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('發生錯誤，請稍後再試。');
+            });
+        });
+    </script>
+</body>
+</html>

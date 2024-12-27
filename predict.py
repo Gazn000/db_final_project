@@ -1,8 +1,12 @@
-import pymysql
-import pandas as pd
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler
+import mysql.connector
+import pymysql
+import pandas as pd
+import os
 
 # MySQL 数据库连接配置
 db_config = {
@@ -15,15 +19,21 @@ db_config = {
 
 app = Flask(__name__)
 
-# 提取用户数据
+# 提取用戶資料
 def get_user_data_from_db():
     connection = pymysql.connect(**db_config)
-    query = "SELECT * FROM user_data;"  # 假设用户数据存储在 `user_data` 表中
+    query = """
+    SELECT id, record_id, account_id, height, weight, age, 
+           gender, highBloodPressure AS bp_category, 
+           smoking AS smoke, heavyAlcohol AS alco, 
+           highBloodSugar AS gluc, highCholesterol AS cholesterol 
+    FROM users;
+    """  # 提取符合新表結構的資料
     user_data = pd.read_sql(query, connection)
     connection.close()
     return user_data
 
-# 提取训练数据
+# 提取訓練資料
 def get_training_data():
     connection = pymysql.connect(**db_config)
     query = """
@@ -42,10 +52,10 @@ def train_and_predict(user_input):
     
     # 数据处理
     data['bp_category'] = data['bp_category'].map({
-        'Normal': 1,
-        'Elevated': 2,
-        'Hypertension Stage 1': 3,
-        'Hypertension Stage 2': 4
+        'Normal': 0,
+        'Elevated': 0,
+        'Hypertension Stage 1': 1,
+        'Hypertension Stage 2': 1
     })
     data = data.fillna(0)
     
@@ -65,12 +75,12 @@ def train_and_predict(user_input):
     # 用户数据处理
     user_bmi = user_input['weight'] / ((user_input['height'] / 100) ** 2)
     user_data = {
-        "age_years": user_input["age_years"],
-        "gender": user_input["gender"],
+        "age_years": user_input["age"],
+        "gender": 0 if user_input["gender"] == "Male" else 1,
         "bmi": user_bmi,
         "smoke": user_input["smoke"],
         "alco": user_input["alco"],
-        "active": user_input["active"],
+        "active": 1,  # 假設用戶活躍狀態爲固定值
         "gluc": user_input["gluc"],
         "cholesterol": user_input["cholesterol"],
         "bp_category": user_input["bp_category"]
@@ -99,7 +109,7 @@ def predict():
 
         # 提取数据库中的用户数据
         user_data = get_user_data_from_db()
-        user_row = user_data[user_data['ID'] == int(user_id)]
+        user_row = user_data[user_data['id'] == int(user_id)]  # id 替换原 ID
 
         # 检查是否找到对应的用户数据
         if user_row.empty:
