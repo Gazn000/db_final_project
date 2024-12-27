@@ -1,9 +1,10 @@
+<!-- templates/personal.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Page</title>
+    <title>個人頁面</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,6 +12,7 @@
             color: #333;
             margin: 0;
             padding: 0;
+            position: relative; /* 為了定位房子按鈕 */
         }
 
         .container {
@@ -21,6 +23,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             text-align: center;
+            position: relative; /* 保留相對定位 */
         }
 
         h2 {
@@ -28,20 +31,19 @@
             color: #4CAF50;
         }
 
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
+        .signup-link p {
+            margin-top: 20px;
             font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px;
-            transition: background-color 0.3s ease;
         }
 
-        button:hover {
-            background-color: #45a049;
+        .signup-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
         }
 
         footer {
@@ -50,32 +52,63 @@
             font-size: 14px;
             color: #666;
         }
+
+        /* 房子按鈕樣式 */
+        .home-button {
+            position: fixed; /* 固定在視窗 */
+            top: 20px;
+            left: 20px;
+            background-color: #f4f4f9; /* 綠色背景 */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
+        }
+
+        .home-button:hover {
+            background-color: #45a049; /* 深綠色 */
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 500px) {
+            .container {
+                margin: 50px auto;
+                padding: 15px;
+            }
+
+            .home-button {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- 房子按鈕，返回主頁 -->
+    <a href="{{ url_for('main_page') }}" class="home-button" title="返回主頁">&#x1F3E0;</a> <!-- Unicode 房子圖示 🏠 -->
+
     <div class="container">
+        <!-- 移除歡迎訊息 -->
+        <!-- <h1 class="welcome-message">歡迎, {{ username }}</h1> -->
+
         <h2>個人資料</h2>
 
-        <!-- 四個按鈕：Create, Update, Delete, Predict -->
-        <button type="button" onclick="window.location.href='create.html'">Create</button>
-        <button type="button" onclick="window.location.href='update.html'">Update</button>
-        <button type="button" onclick="deleteData()">Delete</button>
-        <button type="button" onclick="predictData()">Predict</button>
-
-        <script>
-            // 簡單示例事件處理函數
-            function deleteData() {
-                alert("Delete button clicked!");
-            }
-
-            function predictData() {
-                alert("Predict button clicked!");
-            }
-        </script>
+        <!-- 導航到 Create 頁面 -->
+        <div class="signup-link">
+           <p><a href="{{ url_for('create_page') }}">新增</a> 您的資料</p>
+           <p><a href="{{ url_for('modify_page') }}">修改</a> 您的資料</p>
+           <p><a href="{{ url_for('delete_page') }}">刪除</a> 您的資料</p>
+        </div>
     </div>
-
-    <footer>
-        &copy; 2024 NYCU DB HW3 112550082 李馨亞. All rights reserved.
-    </footer>
 </body>
 </html>
