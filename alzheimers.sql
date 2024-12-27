@@ -8,7 +8,14 @@ CREATE TABLE patients (
     Smoking TINYINT,                -- 是否吸菸
     AlcoholConsumption FLOAT,     -- 酒精消耗
     PhysicalActivity FLOAT,       -- 身體活動
-    DietQuality FLOAT            -- 飲食品質
+    DietQuality FLOAT,            -- 飲食品質
+    SleepQuality FLOAT,
+    FamilyHistoryAlzheimers TINYINT,
+    CardiovascularDisease FLOAT,
+    Diabetes FLOAT,
+    Depression TINYINT,
+    DeadInjury TINYINT,
+    Hypertension TINYINT
 );
 
 LOAD DATA INFILE '/mnt/c/final_project/alzheimers_disease_data.csv' -- 記得替換為實際檔案路徑

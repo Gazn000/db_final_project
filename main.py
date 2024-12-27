@@ -57,6 +57,7 @@ def initialize_database():
             heavyAlcohol BOOLEAN NOT NULL,
             smoking BOOLEAN NOT NULL,
             stroke BOOLEAN NOT NULL,
+            exercise BOOLEAN NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE
@@ -193,9 +194,10 @@ def create_data():
                 heavyAlcohol,
                 smoking,
                 stroke,
+                exercise,
                 account_id,
                 record_id
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         # 6. 從 data 中取得欄位，這些 key 要和前端送過來的 JSON 一致
@@ -209,6 +211,7 @@ def create_data():
         heavyAlcohol = bool(data.get('heavyAlcohol'))
         smoking = bool(data.get('smoking'))
         stroke = bool(data.get('stroke'))
+        exercise = bool(data.get('exercise'))
 
         # 7. 執行 SQL
         cursor.execute(sql, (
@@ -222,6 +225,7 @@ def create_data():
             heavyAlcohol,
             smoking,
             stroke,
+            exercise,
             account_id,
             new_record_id  # 添加 record_id
         ))
@@ -256,7 +260,7 @@ def modify_page():
         # 獲取所有使用者的資料
         cursor.execute("""
             SELECT record_id, height, weight, age, gender, highBloodPressure, highBloodSugar, 
-                   highCholesterol, heavyAlcohol, smoking, stroke, created_at 
+                   highCholesterol, heavyAlcohol, smoking, stroke, exercise, created_at 
             FROM users 
             WHERE account_id = %s
             ORDER BY record_id DESC
@@ -366,6 +370,7 @@ def update_data():
                 heavyAlcohol = %s,
                 smoking = %s,
                 stroke = %s,
+                exercise = %s,
                 updated_at = CURRENT_TIMESTAMP
             WHERE record_id = %s AND account_id = %s
         """
@@ -381,6 +386,7 @@ def update_data():
         heavyAlcohol = bool(data.get("heavyAlcohol"))
         smoking = bool(data.get("smoking"))
         stroke = bool(data.get("stroke"))
+        exercise = bool(data.get("exercise"))
 
         # 執行更新操作
         cursor.execute(
@@ -396,6 +402,7 @@ def update_data():
                 heavyAlcohol,
                 smoking,
                 stroke,
+                exercise,
                 record_id,
                 account_id,
             )
@@ -551,7 +558,7 @@ def delete_page():
         # 獲取當前用戶的所有資料
         cursor.execute("""
             SELECT record_id, height, weight, age, gender, highBloodPressure, highBloodSugar, 
-                   highCholesterol, heavyAlcohol, smoking, stroke, created_at 
+                   highCholesterol, heavyAlcohol, smoking, stroke, exercise, created_at 
             FROM users 
             WHERE account_id = %s
             ORDER BY record_id DESC
@@ -611,7 +618,7 @@ def delete_user(record_id):
         flash(f"意外錯誤: {e}", "danger")
         return redirect(url_for('delete_page'))
 
-
+'''
 # 提取用戶資料
 def get_user_data_from_db():
     connection = get_db_connection()
@@ -619,15 +626,15 @@ def get_user_data_from_db():
     SELECT id, record_id, account_id, height, weight, age, 
            gender, highBloodPressure AS bp_category, 
            smoking AS smoke, heavyAlcohol AS alco, 
-           highBloodSugar AS gluc, highCholesterol AS cholesterol 
+           highBloodSugar AS gluc, highCholesterol AS cholesterol, exercise AS active 
     FROM users;
     """
     user_data = pd.read_sql(query, connection)
     connection.close()
     return user_data
-
+'''
 # 提取訓練資料
-def get_training_data():
+def cardio_get_training_data():
     connection = get_db_connection()
     query = """
     SELECT age_years, gender, bmi, smoke, alco, active, 
@@ -638,9 +645,9 @@ def get_training_data():
     connection.close()
     return data
 
-def train_and_predict(user_input):
+def cardio_train_and_predict(user_input):
     # 獲取訓練資料
-    data = get_training_data()
+    data = cardio_get_training_data()
 
     # 數據處理
     data['bp_category'] = data['bp_category'].map({
@@ -672,7 +679,7 @@ def train_and_predict(user_input):
         "bmi": user_bmi,
         "smoke": int(user_input.get("smoke", 0)),  # 确保有默认值
         "alco": int(user_input.get("alco", 0)),   # 确保有默认值
-        "active": 1,  # 假設用戶活躍狀態為固定值
+        "active": int(user_input.get("active", 0)),  # 确保有默认值
         "gluc": int(user_input.get("gluc", 0)),  # 确保有默认值
         "cholesterol": int(user_input.get("cholesterol", 0)),  # 确保有默认值
         "bp_category": int(user_input.get("bp_category", 0))  # 确保有默认值
@@ -685,7 +692,117 @@ def train_and_predict(user_input):
     # 預測用戶罹病機率
     probabilities = model.predict_proba(user_scaled)
     cardio_probability = probabilities[0][1]  # 罹病的概率
-    return f"根據資料庫數據統計預測，罹病機率為 {cardio_probability * 100:.1f}%"
+    return f"{cardio_probability * 100:.1f}%"
+
+# 提取訓練資料
+def heart_get_training_data():
+    connection = get_db_connection()
+    query = """
+    SELECT Age, Sex, BMI, Smoker, HvyAlcoholConsump, PhysActivity, 
+           Diabetes, HighChol, HighBP, HeartDiseaseorAttack, Stroke
+    FROM Heart;
+    """
+    data = pd.read_sql(query, connection)
+    connection.close()
+    return data
+
+def heart_train_and_predict(user_input):
+    # 獲取訓練資料
+    data = heart_get_training_data()
+
+    data = data.fillna(0)
+
+    # 分離特徵和標籤
+    X = data[['Age', 'Sex', 'BMI', 'Smoker', 'HvyAlcoholConsump', 'PhysActivity', 
+              'Diabetes', 'HighChol', 'HighBP', 'Stroke']]
+    y = data['HeartDiseaseorAttack']
+
+    # 特徵標準化
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # 建立 Gradient Boosting 模型並訓練
+    model = GradientBoostingClassifier(n_estimators=100, random_state=42)
+    model.fit(X_scaled, y)
+
+    # 處理用戶資料
+    user_bmi = user_input['weight'] / ((user_input['height'] / 100) ** 2)
+    user_data = {
+        "Age": user_input["age"],
+        "Sex": 0 if user_input["gender"] == "Male" else 1,
+        "BMI": user_bmi,
+        "Smoker": int(user_input.get("smoke", 0)),  # 确保有默认值
+        "HvyAlcoholConsump": int(user_input.get("alco", 0)),   # 确保有默认值
+        "PhysActivity": int(user_input.get("active", 0)),  # 确保有默认值
+        "Diabetes": int(user_input.get("gluc", 0)),  # 确保有默认值
+        "HighChol": int(user_input.get("cholesterol", 0)),  # 确保有默认值
+        "HighBP": int(user_input.get("bp_category", 0)),  # 确保有默认值
+        "Stroke": int(user_input.get("Stroke", 0))
+    }
+    user_df = pd.DataFrame([user_data])
+
+    # 標準化用戶資料
+    user_scaled = scaler.transform(user_df)
+
+    # 預測用戶罹病機率
+    probabilities = model.predict_proba(user_scaled)
+    Heart_probability = probabilities[0][1]  # 罹病的概率
+    return f"{Heart_probability * 100:.1f}%"
+
+# 提取訓練資料
+def diabetes_get_training_data():
+    connection = get_db_connection()
+    query = """
+    SELECT Age, Sex, BMI, Smoker, HvyAlcoholConsump, PhysActivity, 
+        HighChol, HighBP, Diabetes_binary, Stroke
+    FROM diabetes;
+    """
+    data = pd.read_sql(query, connection)
+    connection.close()
+    return data
+
+def diabetes_train_and_predict(user_input):
+    # 獲取訓練資料
+    data = diabetes_get_training_data()
+
+    # 數據處理
+    data = data.fillna(0)
+
+    # 分離特徵和標籤
+    X = data[['Age', 'Sex', 'BMI', 'Smoker', 'HvyAlcoholConsump', 'PhysActivity', 
+            'HighChol', 'HighBP', 'Stroke']]
+    y = data['Diabetes_binary']
+
+    # 特徵標準化
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # 建立 Gradient Boosting 模型並訓練
+    model = GradientBoostingClassifier(n_estimators=100, random_state=42)
+    model.fit(X_scaled, y)
+
+    # 處理用戶資料
+    user_bmi = user_input['weight'] / ((user_input['height'] / 100) ** 2)
+    user_data = {
+        "Age": user_input["age"],
+        "Sex": 0 if user_input["gender"] == "Male" else 1,
+        "BMI": user_bmi,
+        "Smoker": int(user_input.get("smoke", 0)),  # 确保有默认值
+        "HvyAlcoholConsump": int(user_input.get("alco", 0)),   # 确保有默认值
+        "PhysActivity": int(user_input.get("active", 0)),  # 确保有默认值
+        "HighChol": int(user_input.get("cholesterol", 0)),  # 确保有默认值
+        "HighBP": int(user_input.get("bp_category", 0)),  # 确保有默认值
+        "Stroke": int(user_input.get("Stroke", 0))
+    }
+    user_df = pd.DataFrame([user_data])
+
+    # 標準化用戶資料
+    user_scaled = scaler.transform(user_df)
+
+    # 預測用戶罹病機率
+    probabilities = model.predict_proba(user_scaled)
+    diabetes_probability = probabilities[0][1]  # 罹病的概率
+    return f"{diabetes_probability * 100:.1f}%"
 
 
 # Flask 路由
@@ -750,10 +867,25 @@ def predict():
             if field not in user_data:
                 user_data[field] = 0  # 填補缺失字段
 
-        # 執行預測
-        probabilities = train_and_predict(user_data)  # 使用最新的數據進行預測
-        return jsonify({"result": probabilities})  # 返回預測結果
+        # 執行三種預測
+        cardio_probability = cardio_train_and_predict(user_data)
+        print("prediction input:", user_data)
+        print("Cardio prediction result:", cardio_probability)
+        heart_probability = heart_train_and_predict(user_data)
+        print("Heart prediction result:", heart_probability)
+        diabetes_probability = diabetes_train_and_predict(user_data)
+        print("Cardio prediction result:", diabetes_probability)
 
+        #heart_probability = heart_train_and_predict(user_data)
+        #diabetes_probability = diabetes_train_and_predict(user_data)
+
+        # 返回三個預測結果
+        result = f"""
+        心血管疾病機率: {cardio_probability}    
+        心臟病機率: {heart_probability}
+        糖尿病機率: {diabetes_probability}
+        """
+        return jsonify({"result": result})
     except mysql.connector.Error as db_err:
         return jsonify({"error": f"資料庫錯誤: {db_err}"}), 500
     except Exception as e:

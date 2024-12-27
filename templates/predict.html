@@ -166,6 +166,10 @@
                 <td>中風</td>
                 <td>{{ '是' if user_data.stroke else '否' }}</td>
             </tr>
+            <tr>
+                <td>運動習慣</td>
+                <td>{{ '是' if user_data.exercise else '否' }}</td>
+            </tr>
         </table>
         <button id="analyze-btn">分析</button>
 
@@ -208,7 +212,11 @@
                 success: function(response) {
                     $('#loading').hide(); // 隱藏 loading 動畫
                     if (response.result) {
-                        $('#analysis-result').html('<h2>分析結果</h2><p>' + response.result + '</p>');
+                        $('#analysis-result').html(`
+                        <h2>分析結果</h2>
+                        <p>根據資料庫數據統計預測：</p>
+                        <pre>${response.result}</pre>
+        `               );
                     } else {
                         $('#analysis-result').html('<h2>錯誤</h2><p>未返回分析結果。</p>');
                     }

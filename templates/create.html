@@ -128,6 +128,12 @@
                 <option value="1">是</option>
             </select>
 
+            <label for="exercise">運動習慣: </label>
+            <select id="exercise" name="exercise" required>
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+
             <button type="submit">新增</button>
         </form>
         <div class="message" id="message"></div>
@@ -136,7 +142,7 @@
     <script>
         document.getElementById('createForm').addEventListener('submit', function (e) {
             e.preventDefault(); // 阻止表單預設行為
-
+        
             // 收集表單數據並轉換為適當的類型
             const formData = {
                 height: parseFloat(document.getElementById('height').value),
@@ -148,9 +154,10 @@
                 highCholesterol: document.getElementById('highCholesterol').value === '1',
                 heavyAlcohol: document.getElementById('heavyAlcohol').value === '1',
                 smoking: document.getElementById('smoking').value === '1',
-                stroke: document.getElementById('stroke').value === '1'
+                stroke: document.getElementById('stroke').value === '1',
+                exercise: document.getElementById('exercise').value === '1'
             };
-
+        
             // 發送 POST 請求到 /create
             fetch('/create', {
                 method: 'POST',
@@ -163,20 +170,12 @@
             .then(data => {
                 const messageDiv = document.getElementById('message');
                 if (data.message) {
-                    // 顯示成功訊息
                     messageDiv.textContent = data.message;
                     messageDiv.className = 'message success';
-                    
-                    // 顯示彈窗通知
                     alert(data.message);
-                    
-                    // 重置表單
                     document.getElementById('createForm').reset();
-                    
-                    // 重定向回個人資料頁面
                     window.location.href = "{{ url_for('personal') }}";
                 } else if (data.error) {
-                    // 顯示錯誤訊息
                     messageDiv.textContent = '錯誤: ' + data.error;
                     messageDiv.className = 'message error';
                 }
@@ -188,6 +187,7 @@
                 console.error('錯誤:', error);
             });
         });
+        
     </script>
 </body>
 </html>
