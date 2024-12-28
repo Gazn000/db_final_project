@@ -1,0 +1,260 @@
+<!-- templates/main_page.html -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人健康管理系統</title>
+    <style>
+        /* 全局樣式 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff; /* 白色背景 */
+            color: #333333; /* 深灰文字 */
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #4CAF50; /* 綠色標題 */
+        }
+
+        .section {
+            background-color: #f9f9f9; /* 淺灰背景 */
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50; /* 綠色按鈕 */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049; /* 深綠色 */
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #555555;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .back-link a:hover {
+            background-color: #45a049;
+        }
+
+        /* Flash 訊息樣式 */
+        .flash {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .flash.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .flash.danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .flash.warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .flash.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 600px) {
+            .section {
+                padding: 15px;
+            }
+
+            button, .back-link a {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+    </style>
+    <script>
+        // 查詢百分比
+        function fetchHeadInjuryPercentage() {
+            const HeadInjuryValue = document.getElementById("HeadInjury").value;
+
+            if (HeadInjuryValue === "") {
+                alert("請選擇有效選項。");
+                return;
+            }
+
+            fetch(`/get_percentage?HeadInjury=${HeadInjuryValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("HeadInjuryResult").textContent =
+                            `有 ${data.percentage}% 的人與您相同。`;
+                    }
+                })
+                .catch(error => {
+                    console.error("錯誤:", error);
+                    alert("發生錯誤，請再試一次。");
+                });
+        }
+
+        // 查詢 MMSE 百分比
+        function fetchMMSEPercentage() {
+            const MMSE = document.getElementById("MMSE").value;
+
+            if (!MMSE) {
+                alert("請輸入MMSE");
+                return;
+            }
+
+            fetch(`/get_MMSE_percentage?MMSE=${MMSE}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("MMSEResult").textContent =
+                            `有${data.percentage}%的人在您MMSE值以下`;
+                    }
+                })
+                .catch(error => {
+                    console.error("錯誤:", error);
+                    alert("發生錯誤，請再試一次。");
+                });
+        }
+
+        // 查詢酒精消耗百分比
+        function fetchAlcoholPercentage() {
+            const alcohol = document.getElementById("alcohol").value;
+
+            if (!alcohol) {
+                alert("請輸入酒精消耗量。");
+                return;
+            }
+
+            fetch(`/get_alcohol_percentage?alcohol=${alcohol}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("alcoholResult").textContent =
+                            `您的酒精消耗量: ${data.input_alcohol}, 有${data.percentage}%的人在您之下`;
+                    }
+                })
+                .catch(error => {
+                    console.error("錯誤:", error);
+                    alert("發生錯誤，請再試一次。");
+                });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>個人健康管理系統</h1>
+
+        <!-- 返回個人頁面的連結 -->
+        <div class="back-link">
+            <a href="{{ url_for('personal') }}">前往個人頁面</a>
+        </div>
+        <div>
+            <details>
+                <summary>本月主題：阿茲海默症</summary>
+                <p>阿茲海默症（Alzheimer's Disease，簡稱 AD）是一種神經退行性疾病，主要影響大腦的記憶、思維和行為功能。它是最常見的<strong>癡呆症（Dementia）</strong>類型，佔所有癡呆症病例的 60%-80%。該病以逐漸進展的方式損害患者的日常生活能力，目前尚無法治癒。</p>
+                <p>MMSE 是一種測試工具，用於快速評估認知障礙。</p>
+                <a href="https://www.tnhosp.mohw.gov.tw/warehouse/%7B39106C47-FD51-43B7-AE4D-06F761C961D8%7D/MMSE%E8%AA%8D%E7%9F%A5%E5%8A%9F%E8%83%BD%E8%A9%95%E4%BC%B0%E9%87%8F%E8%A1%A8.pdf">MMSE量表</a>
+                <p>試著跟下方程式互動</p>
+            </details>
+        </div>
+
+        <!-- 頭部創傷百分比查詢 -->
+        <div class="section">
+            <h2>頭部創傷百分比</h2>
+            <label for="HeadInjury">您的頭部是否曾受過傷:</label>
+            <select name="HeadInjury" id="HeadInjury">
+                <option value="">全部</option>
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+            <button type="button" onclick="fetchHeadInjuryPercentage()">查看頭部創傷百分比</button>
+            <p id="HeadInjuryResult" class="result">選擇一個選項以查看百分比。</p>
+        </div>
+
+        <!-- MMSE 百分比查詢 -->
+        <div class="section">
+            <h2>MMSE 百分比</h2>
+            <label for="MMSE">MMSE:</label>
+            <input type="number" id="MMSE" name="MMSE" step="0.1" placeholder="(0-30)">
+            <button type="button" onclick="fetchMMSEPercentage()">檢查 MMSE 百分比</button>
+            <p id="MMSEResult" class="result">輸入您的MMSE並查看百分比。</p>
+        </div>
+
+        <!-- 酒精消耗百分比查詢 -->
+        <div class="section">
+            <h2>酒精消耗百分比</h2>
+            <label for="alcohol">每週酒精消耗量 (單位):</label>
+            <input type="number" id="alcohol" name="alcohol" step="0.1" placeholder="例如，10">
+            <button type="button" onclick="fetchAlcoholPercentage()">檢查酒精百分比</button>
+            <p id="alcoholResult" class="result">輸入每週酒精消耗量以查看百分比。</p>
+        </div>
+    </div>
+</body>
+
+</html>

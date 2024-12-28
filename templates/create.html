@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新增資料</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+        a {
+            display: inline-block;
+            margin: 20px;
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>新增資料</h1>
+        <a href="{{ url_for('personal') }}">返回個人頁面</a>
+        <form id="createForm">
+            <label for="height">身高 (cm): </label>
+            <input type="number" id="height" name="height" step="0.1" required>
+
+            <label for="weight">體重 (kg): </label>
+            <input type="number" id="weight" name="weight" step="0.1" required>
+
+            <label for="age">年齡: </label>
+            <input type="number" id="age" name="age" required>
+
+            <label for="gender">性別: </label>
+            <select id="gender" name="gender" required>
+                <option value="male">男</option>
+                <option value="female">女</option>
+                <option value="other">其他</option>
+            </select>
+
+            <label for="highBloodPressure">高血壓: </label>
+            <select id="highBloodPressure" name="highBloodPressure" required>
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+
+            <label for="highBloodSugar">高血糖: </label>
+            <select id="highBloodSugar" name="highBloodSugar" required>
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+
+            <label for="highCholesterol">高膽固醇: </label>
+            <select id="highCholesterol" name="highCholesterol" required>
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+
+            <label for="heavyAlcohol">大量飲酒: </label>
+            <select id="heavyAlcohol" name="heavyAlcohol" required>
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+
+            <label for="smoking">吸菸: </label>
+            <select id="smoking" name="smoking" required>
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+
+            <label for="stroke">中風: </label>
+            <select id="stroke" name="stroke" required>
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+
+            <label for="exercise">運動習慣: </label>
+            <select id="exercise" name="exercise" required>
+                <option value="0">否</option>
+                <option value="1">是</option>
+            </select>
+
+            <button type="submit">新增</button>
+        </form>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        document.getElementById('createForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // 阻止表單預設行為
+        
+            // 收集表單數據並轉換為適當的類型
+            const formData = {
+                height: parseFloat(document.getElementById('height').value),
+                weight: parseFloat(document.getElementById('weight').value),
+                age: parseInt(document.getElementById('age').value),
+                gender: document.getElementById('gender').value,
+                highBloodPressure: document.getElementById('highBloodPressure').value === '1',
+                highBloodSugar: document.getElementById('highBloodSugar').value === '1',
+                highCholesterol: document.getElementById('highCholesterol').value === '1',
+                heavyAlcohol: document.getElementById('heavyAlcohol').value === '1',
+                smoking: document.getElementById('smoking').value === '1',
+                stroke: document.getElementById('stroke').value === '1',
+                exercise: document.getElementById('exercise').value === '1'
+            };
+        
+            // 發送 POST 請求到 /create
+            fetch('/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageDiv = document.getElementById('message');
+                if (data.message) {
+                    messageDiv.textContent = data.message;
+                    messageDiv.className = 'message success';
+                    alert(data.message);
+                    document.getElementById('createForm').reset();
+                    window.location.href = "{{ url_for('personal') }}";
+                } else if (data.error) {
+                    messageDiv.textContent = '錯誤: ' + data.error;
+                    messageDiv.className = 'message error';
+                }
+            })
+            .catch(error => {
+                const messageDiv = document.getElementById('message');
+                messageDiv.textContent = '錯誤: 無法連接到伺服器。';
+                messageDiv.className = 'message error';
+                console.error('錯誤:', error);
+            });
+        });
+        
+    </script>
+</body>
+</html>
