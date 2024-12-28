@@ -13,7 +13,7 @@
 - sql: 檔案路徑
 
 ### folder 說明
-- csv: 從kaggle上下載的dataset
+- dataset: 從kaggle上下載的dataset
   - https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-datasethttps://www.kaggle.com/datasets/rabieelkharoua/alzheimers-disease-dataset
   - https://www.kaggle.com/datasets/alexteboul/heart-disease-health-indicators-dataset/data
   - https://www.kaggle.com/datasets/colewelkins/cardiovascular-disease
