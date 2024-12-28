@@ -40,6 +40,7 @@
         <label>大量飲酒: <input type="checkbox" name="heavyAlcohol" {% if user_data.heavyAlcohol %}checked{% endif %}></label>
         <label>吸菸: <input type="checkbox" name="smoking" {% if user_data.smoking %}checked{% endif %}></label>
         <label>中風: <input type="checkbox" name="stroke" {% if user_data.stroke %}checked{% endif %}></label>
+        <label>運動習慣: <input type="checkbox" name="exercise" {% if user_data.exercise %}checked{% endif %}></label>
         <button type="submit">更新</button>
     </form>
 
@@ -59,7 +60,8 @@
                 highCholesterol: formData.get('highCholesterol') === 'on',
                 heavyAlcohol: formData.get('heavyAlcohol') === 'on',
                 smoking: formData.get('smoking') === 'on',
-                stroke: formData.get('stroke') === 'on'
+                stroke: formData.get('stroke') === 'on',
+                exercise: formData.get('exercise') === 'on'
             };
 
             fetch('{{ url_for("update_data") }}', {
