@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler
 import mysql.connector
-import pymysql
 import pandas as pd
 import os
 from datetime import datetime
