@@ -21,4 +21,4 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(id, gender, height, weight, cholesterol, gluc, smoke, alco, active, cardio, age_years, bmi, bp_category);  -- 根據 CSV 中的欄位順序對應到 MySQL 表格的列
+(id, gender, height, weight, @ap_hi, @ap_lo, cholesterol, gluc, smoke, alco, active, cardio, age_years, bmi, bp_category, @bp_category_encoded);  -- 根據 CSV 中的欄位順序對應到 MySQL 表格的列
