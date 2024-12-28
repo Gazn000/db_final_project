@@ -8,6 +8,7 @@ import pandas as pd
 import os
 from datetime import datetime
 
+
 # 加載環境變數
 load_dotenv()
 
@@ -16,7 +17,7 @@ app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')  # 使用環境變�
 
 # 資料庫連線設定
 DB_HOST = os.getenv('DB_HOST', 'localhost')
-DB_USER = os.getenv('DB_USER', 'gazn')
+DB_USER = os.getenv('DB_USER', 'your_username')
 DB_PASS = os.getenv('DB_PASS', 'your_password')
 DB_NAME = os.getenv('DB_NAME', 'final_project')
 
@@ -28,6 +29,7 @@ def get_db_connection():
         password=DB_PASS,
         database=DB_NAME
     )
+
 
 def initialize_database():
     conn = get_db_connection()
@@ -79,6 +81,7 @@ def login():
     if 'user_id' in session:
         return redirect(url_for('main_page'))
 
+
     if request.method == "POST":
         username = request.form['username']
         password = request.form['password']  # 原始密碼
@@ -104,8 +107,7 @@ def login():
 
     # 渲染登入頁面
     return render_template("login.html")
-
-
+  
 @app.route("/main_page", methods=["GET"])
 def main_page():
     if "user_id" not in session:
@@ -348,6 +350,7 @@ def view_page():
         return render_template("view.html", user_data=[], error=f"發生錯誤: {str(e)}")
 
 
+
 # 新增：修改資料頁面
 @app.route("/modify_page", methods=["GET"])
 def modify_page():
@@ -567,6 +570,7 @@ def get_percentage():
             cursor.close()
         if 'conn' in locals():
             conn.close()
+
 
 @app.route("/get_MMSE_percentage", methods=['GET'])
 def get_MMSE_percentage():
@@ -998,7 +1002,6 @@ def logout():
     session.clear()  # 清除所有 session 資料
     flash("您已成功登出。", "info")
     return redirect(url_for("login"))
-
 
 if __name__ == "__main__":
     # 執行 Flask 應用程式 (預設 port=5000)

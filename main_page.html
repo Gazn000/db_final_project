@@ -1,0 +1,254 @@
+<!-- templates/main_page.html -->
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主頁</title>
+    <style>
+        /* 全局樣式 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff; /* 白色背景 */
+            color: #333333; /* 深灰文字 */
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #4CAF50; /* 綠色標題 */
+        }
+
+        .section {
+            background-color: #f9f9f9; /* 淺灰背景 */
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50; /* 綠色按鈕 */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049; /* 深綠色 */
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #555555;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .back-link a:hover {
+            background-color: #45a049;
+        }
+
+        /* Flash 訊息樣式 */
+        .flash {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .flash.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .flash.danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .flash.warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .flash.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 600px) {
+            .section {
+                padding: 15px;
+            }
+
+            button, .back-link a {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+    </style>
+    <script>
+        // 查詢吸菸百分比
+        function fetchSmokingPercentage() {
+            const smokeValue = document.getElementById("smoke").value;
+
+            if (smokeValue === "") {
+                alert("請選擇有效選項。");
+                return;
+            }
+
+            fetch(`/get_percentage?smoke=${smokeValue}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("smokingResult").textContent =
+                            `有 ${data.percentage}% 的人與您相同。`;
+                    }
+                })
+                .catch(error => {
+                    console.error("錯誤:", error);
+                    alert("發生錯誤，請再試一次。");
+                });
+        }
+
+        // 查詢 BMI 百分比
+        function fetchBMIPercentage() {
+            const weight = document.getElementById("weight").value;
+            const height = document.getElementById("height").value;
+
+            if (!weight || !height) {
+                alert("請輸入體重和身高。");
+                return;
+            }
+
+            fetch(`/get_bmi_percentage?weight=${weight}&height=${height}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("bmiResult").textContent =
+                            `有${data.percentage}%的人在您BMI值以下`;
+                    }
+                })
+                .catch(error => {
+                    console.error("錯誤:", error);
+                    alert("發生錯誤，請再試一次。");
+                });
+        }
+
+        // 查詢酒精消耗百分比
+        function fetchAlcoholPercentage() {
+            const alcohol = document.getElementById("alcohol").value;
+
+            if (!alcohol) {
+                alert("請輸入酒精消耗量。");
+                return;
+            }
+
+            fetch(`/get_alcohol_percentage?alcohol=${alcohol}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        document.getElementById("alcoholResult").textContent =
+                            `您的酒精消耗量: ${data.input_alcohol}, 有${data.percentage}%的人在您之下`;
+                    }
+                })
+                .catch(error => {
+                    console.error("錯誤:", error);
+                    alert("發生錯誤，請再試一次。");
+                });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>主頁</h1>
+
+        <!-- 返回個人頁面的連結 -->
+        <div class="back-link">
+            <a href="{{ url_for('personal') }}">前往個人頁面</a>
+        </div>
+
+        <!-- 吸菸百分比查詢 -->
+        <div class="section">
+            <h2>吸菸百分比</h2>
+            <label for="smoke">按吸菸狀態過濾:</label>
+            <select name="smoke" id="smoke">
+                <option value="">全部</option>
+                <option value="0">否 (0)</option>
+                <option value="1">是 (1)</option>
+            </select>
+            <button type="button" onclick="fetchSmokingPercentage()">檢查吸菸百分比</button>
+            <p id="smokingResult" class="result">選擇一個選項以查看百分比。</p>
+        </div>
+
+        <!-- BMI 百分比查詢 -->
+        <div class="section">
+            <h2>BMI 百分比</h2>
+            <label for="weight">體重 (kg):</label>
+            <input type="number" id="weight" name="weight" step="0.1" placeholder="例如，70">
+            <label for="height">身高 (cm):</label>
+            <input type="number" id="height" name="height" step="0.1" placeholder="例如，170">
+            <button type="button" onclick="fetchBMIPercentage()">檢查 BMI 百分比</button>
+            <p id="bmiResult" class="result">輸入您的體重和身高以計算 BMI 並查看百分比。</p>
+        </div>
+
+        <!-- 酒精消耗百分比查詢 -->
+        <div class="section">
+            <h2>酒精消耗百分比</h2>
+            <label for="alcohol">每週酒精消耗量 (單位):</label>
+            <input type="number" id="alcohol" name="alcohol" step="0.1" placeholder="例如，10">
+            <button type="button" onclick="fetchAlcoholPercentage()">檢查酒精百分比</button>
+            <p id="alcoholResult" class="result">輸入每週酒精消耗量以查看百分比。</p>
+        </div>
+    </div>
+</body>
+
+</html>
