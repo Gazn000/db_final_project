@@ -535,8 +535,8 @@ def update_data():
 
 @app.route("/get_percentage", methods=['GET'])
 def get_percentage():
-    smoke = request.args.get('smoke')
-    if smoke not in ["0", "1"]:
+    HeadInjury = request.args.get('HeadInjury')
+    if HeadInjury not in ["0", "1"]:
         return jsonify({"error": "Invalid input. Please select 0 or 1."}), 400
 
     try:
@@ -544,11 +544,11 @@ def get_percentage():
         cursor = conn.cursor(dictionary=True)
 
         # 獲取總人數
-        cursor.execute("SELECT COUNT(*) AS total_count FROM alzheimers")
+        cursor.execute("SELECT COUNT(*) AS total_count FROM alzheimers_diagnosed")
         total_count = cursor.fetchone()['total_count']
 
         # 獲取符合條件的人數
-        cursor.execute("SELECT COUNT(*) AS matching_count FROM alzheimers WHERE Smoking = %s", (smoke,))
+        cursor.execute("SELECT COUNT(*) AS matching_count FROM alzheimers_diagnosed WHERE HeadInjury = %s", (HeadInjury,))
         matching_count = cursor.fetchone()['matching_count']
 
         # 計算百分比
@@ -569,37 +569,33 @@ def get_percentage():
         if 'conn' in locals():
             conn.close()
 
-@app.route("/get_bmi_percentage", methods=['GET'])
-def get_bmi_percentage():
+@app.route("/get_MMSE_percentage", methods=['GET'])
+def get_MMSE_percentage():
     try:
-        weight = float(request.args.get('weight', 0))
-        height = float(request.args.get('height', 0))
-        if weight <= 0 or height <= 0:
-            return jsonify({"error": "Invalid weight or height."}), 400
-
-        height_m = height / 100
-        bmi = weight / (height_m ** 2)
+        MMSE = float(request.args.get('MMSE', 0))
+        if MMSE < 0 or MMSE > 30:
+            return jsonify({"error": "Invalid MMSE."}), 400
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT COUNT(*) AS total_count FROM alzheimers")
+        cursor.execute("SELECT COUNT(*) AS total_count FROM alzheimers_diagnosed")
         total_count = cursor.fetchone()['total_count']
 
-        cursor.execute("SELECT COUNT(*) AS matching_count FROM alzheimers WHERE BMI <= %s", (bmi,))
+        cursor.execute("SELECT COUNT(*) AS matching_count FROM alzheimers_diagnosed WHERE MMSE <= %s", (MMSE,))
         matching_count = cursor.fetchone()['matching_count']
 
         percentage = (matching_count / total_count) * 100
 
         return jsonify({
-            "input_bmi": round(bmi, 2),
+            "input_MMSE": MMSE,
             "total_count": total_count,
             "matching_count": matching_count,
             "percentage": round(percentage, 2)
         })
 
     except ValueError:
-        return jsonify({"error": "Invalid input for weight or height."}), 400
+        return jsonify({"error": "Invalid input for MMSE."}), 400
 
     except mysql.connector.Error as err:
         return jsonify({"error": str(err)}), 500
@@ -620,10 +616,10 @@ def get_alcohol_percentage():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT COUNT(*) AS total_count FROM alzheimers")
+        cursor.execute("SELECT COUNT(*) AS total_count FROM alzheimers_diagnosed")
         total_count = cursor.fetchone()['total_count']
 
-        cursor.execute("SELECT COUNT(*) AS matching_count FROM patients WHERE AlcoholConsumption <= %s", (alcohol,))
+        cursor.execute("SELECT COUNT(*) AS matching_count FROM alzheimers_diagnosed WHERE AlcoholConsumption <= %s", (alcohol,))
         matching_count = cursor.fetchone()['matching_count']
 
         percentage = (matching_count / total_count) * 100
