@@ -7,6 +7,8 @@ import mysql.connector
 import pymysql
 import pandas as pd
 import os
+from datetime import datetime
+
 # 加載環境變數
 load_dotenv()
 
@@ -74,6 +76,10 @@ initialize_database()
 # 登入頁面
 @app.route("/", methods=["GET", "POST"])
 def login():
+    # 如果用戶已登入，直接重定向到主頁
+    if 'user_id' in session:
+        return redirect(url_for('main_page'))
+
     if request.method == "POST":
         username = request.form['username']
         password = request.form['password']  # 原始密碼
@@ -99,6 +105,7 @@ def login():
 
     # 渲染登入頁面
     return render_template("login.html")
+
 
 @app.route("/main_page", methods=["GET"])
 def main_page():
@@ -243,6 +250,105 @@ def create_data():
     except Exception as e:
         return jsonify({"error": f"意外錯誤: {e}"}), 500
 
+@app.route("/view_page", methods=["GET"])
+def view_page():
+    if "user_id" not in session:
+        return jsonify({"error": "未登入，請先登入"}), 401
+
+    user_id = session["user_id"]
+
+    try:
+        # 初始化查詢條件
+        query = "SELECT * FROM users WHERE account_id = %s"
+        params = [user_id]
+
+        filter_fields = request.args.getlist("filter_field[]")
+        filter_min_values = request.args.getlist("filter_min[]")
+        filter_max_values = request.args.getlist("filter_max[]")
+        filter_start_dates = request.args.getlist("filter_start_date[]")
+        filter_end_dates = request.args.getlist("filter_end_date[]")
+        filter_values = request.args.getlist("filter_value[]")
+        
+        errors = []
+
+        # 處理篩選條件
+        date_i = 0
+        int_i = 0
+        bool_i = 0
+
+        for field in filter_fields:  # 直接基於 filter_fields 的值迭代
+            
+            if field == "created_at":  # 日期篩選
+                # 確保日期篩選的值存在
+                start_date = filter_start_dates[date_i] if date_i < len(filter_start_dates) else None
+                end_date = filter_end_dates[date_i] if date_i < len(filter_end_dates) else None
+                if not start_date or not end_date:
+                    errors.append("請提供完整的日期範圍")
+                elif start_date > end_date:
+                    errors.append("開始日期不能晚於結束日期")
+                elif start_date == end_date:  # 單一天篩選
+                    query += " AND DATE(created_at) = %s"
+                    params.append(start_date)
+                else:  # 日期範圍篩選
+                    query += " AND created_at BETWEEN %s AND %s"
+                    params.extend([start_date, end_date])
+                date_i += 1
+
+            elif field in ["age", "weight"]:  # 數值篩選
+                # 確保數值篩選的值存在
+                min_value = float(filter_min_values[int_i]) if int_i < len(filter_min_values) else None
+                max_value = float(filter_max_values[int_i]) if int_i < len(filter_max_values) else None
+                if min_value is None or max_value is None:
+                    errors.append(f"{field} 篩選值不完整")
+                elif min_value < 0 or max_value < 0:
+                    errors.append(f"{field} 的篩選值不能為負數")
+                elif min_value > max_value:
+                    errors.append(f"{field} 的最小值不能大於最大值")
+                else:
+                    query += f" AND {field} BETWEEN %s AND %s"
+                    params.extend([min_value, max_value])
+                int_i += 1
+
+            elif field in ["highBloodPressure", "highBloodSugar", "highCholesterol", "heavyAlcohol", "smoking", "stroke", "exercise"]:
+                # 確保布林值篩選的值存在
+                value = filter_values[bool_i] if bool_i < len(filter_values) else None
+                if value not in ["0", "1"]:
+                    errors.append(f"{field} 的值無效，請選擇是或否")
+                else:
+                    query += f" AND {field} = %s"
+                    params.append(int(value))  # 確保布林值轉為整數
+                bool_i += 1
+
+            else:
+                errors.append(f"未知的篩選條件: {field}")
+
+
+                        
+        # 如果有錯誤，直接返回頁面，顯示錯誤訊息
+        if errors:
+            return render_template("view.html", user_data=[], error="; ".join(errors))
+
+        # 調試：列印生成的查詢和參數
+        print("SQL Query:", query)
+        print("Parameters:", params)
+
+        # 查詢資料庫
+        connection = get_db_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(query, tuple(params))
+        user_data = cursor.fetchall()
+        cursor.close()
+        connection.close()
+
+        if not user_data:
+            return render_template("view.html", user_data=[])
+
+        return render_template("view.html", user_data=user_data, error=None)
+
+    except Exception as e:
+        return render_template("view.html", user_data=[], error=f"發生錯誤: {str(e)}")
+
+
 # 新增：修改資料頁面
 @app.route("/modify_page", methods=["GET"])
 def modify_page():
@@ -260,7 +366,7 @@ def modify_page():
         # 獲取所有使用者的資料
         cursor.execute("""
             SELECT record_id, height, weight, age, gender, highBloodPressure, highBloodSugar, 
-                   highCholesterol, heavyAlcohol, smoking, stroke, exercise, created_at 
+                highCholesterol, heavyAlcohol, smoking, stroke, exercise, created_at 
             FROM users 
             WHERE account_id = %s
             ORDER BY record_id DESC
@@ -438,11 +544,11 @@ def get_percentage():
         cursor = conn.cursor(dictionary=True)
 
         # 獲取總人數
-        cursor.execute("SELECT COUNT(*) AS total_count FROM patients")
+        cursor.execute("SELECT COUNT(*) AS total_count FROM alzheimers")
         total_count = cursor.fetchone()['total_count']
 
         # 獲取符合條件的人數
-        cursor.execute("SELECT COUNT(*) AS matching_count FROM patients WHERE Smoking = %s", (smoke,))
+        cursor.execute("SELECT COUNT(*) AS matching_count FROM alzheimers WHERE Smoking = %s", (smoke,))
         matching_count = cursor.fetchone()['matching_count']
 
         # 計算百分比
@@ -477,10 +583,10 @@ def get_bmi_percentage():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT COUNT(*) AS total_count FROM patients")
+        cursor.execute("SELECT COUNT(*) AS total_count FROM alzheimers")
         total_count = cursor.fetchone()['total_count']
 
-        cursor.execute("SELECT COUNT(*) AS matching_count FROM patients WHERE BMI <= %s", (bmi,))
+        cursor.execute("SELECT COUNT(*) AS matching_count FROM alzheimers WHERE BMI <= %s", (bmi,))
         matching_count = cursor.fetchone()['matching_count']
 
         percentage = (matching_count / total_count) * 100
@@ -514,7 +620,7 @@ def get_alcohol_percentage():
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT COUNT(*) AS total_count FROM patients")
+        cursor.execute("SELECT COUNT(*) AS total_count FROM alzheimers")
         total_count = cursor.fetchone()['total_count']
 
         cursor.execute("SELECT COUNT(*) AS matching_count FROM patients WHERE AlcoholConsumption <= %s", (alcohol,))
@@ -894,10 +1000,10 @@ def predict():
 # 登出功能
 @app.route("/logout", methods=["GET"])
 def logout():
-    session.pop("user_id", None)
-    session.pop("username", None)
-    flash("已登出。", "info")
+    session.clear()  # 清除所有 session 資料
+    flash("您已成功登出。", "info")
     return redirect(url_for("login"))
+
 
 if __name__ == "__main__":
     # 執行 Flask 應用程式 (預設 port=5000)

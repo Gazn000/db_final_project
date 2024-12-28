@@ -70,11 +70,23 @@
         .error {
             color: red;
         }
+        a {
+            display: inline-block;
+            margin: 20px;
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
         <h1>新增資料</h1>
+        <a href="{{ url_for('personal') }}">返回個人頁面</a>
         <form id="createForm">
             <label for="height">身高 (cm): </label>
             <input type="number" id="height" name="height" step="0.1" required>

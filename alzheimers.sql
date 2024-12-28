@@ -1,4 +1,4 @@
-CREATE TABLE patients (
+CREATE TABLE alzheimers (
     PatientID INT PRIMARY KEY,          -- 病患編號，主鍵
     Age INT,                            -- 年齡
     Gender TINYINT,                 -- 性別
@@ -18,10 +18,11 @@ CREATE TABLE patients (
     Hypertension TINYINT
 );
 
-LOAD DATA INFILE '/mnt/c/final_project/alzheimers_disease_data.csv' -- 記得替換為實際檔案路徑
+LOAD DATA INFILE '/mnt/c/Users/judy7/OneDrive/Desktop/Sophomore/db/final_project_code/alzheimers_disease_data.csv' -- 記得替換為實際檔案路徑
 INTO TABLE patients
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS
-(PatientID, Age, Gender, Ethnicity, EducationLevel, BMI, Smoking, AlcoholConsumption, PhysicalActivity, DietQuality, @SleepQuality, @FamilyHistoryAlzheimers, @CardiovascularDisease, @Diabetes, @Depression, @HeadInjury, @Hypertension, @SystolicBP, @DiastolicBP, @CholesterolTotal, @CholesterolLDL, @CholesterolHDL, @CholesterolTriglycerides, @MMSE, @FunctionalAssessment, @MemoryComplaints, @BehavioralProblems, @ADL, @Confusion, @Disorientation, @PersonalityChanges, @DifficultyCompletingTasks, @Forgetfulness, @Diagnosis, @DoctorInCharge);
+(PatientID, Age, Gender, Ethnicity, EducationLevel, BMI, Smoking, AlcoholConsumption, PhysicalActivity, DietQuality, @SleepQuality, @FamilyHistoryAlzheimers, @CardiovascularDisease, @Diabetes, @Depression, @HeadInjury, @Hypertension, @SystolicBP, @DiastolicBP, @CholesterolTotal, @CholesterolLDL, @CholesterolHDL, @CholesterolTriglycerides, @MMSE, @FunctionalAssessment, @MemoryComplaints, @BehavioralProblems, @ADL, @Confusion, @Disorientation, @PersonalityChanges, @DifficultyCompletingTasks, @Forgetfulness, @Diagnosis, @DoctorInCharge)
+WHERE Diagnosis = 1;

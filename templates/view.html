@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <title>檢視資料</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+
+        .filter-container {
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .filter-group select,
+        .filter-group input,
+        .filter-group button {
+            margin-right: 10px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .filter-group button {
+            padding: 6px 12px;
+            background-color: rgb(228, 61, 61);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .filter-group button:hover {
+            background-color: rgb(237, 80, 80);
+        }
+
+        #add-filter,
+        #submit,
+        #show-all {
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #add-filter:hover,
+        #submit:hover,
+        #show-all:hover {
+            background-color: #45a049;
+        }
+        a.button {
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        a.button:hover {
+            background-color: #45a049;
+        }
+        #back {
+            display: inline-block;
+            margin: 20px;
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #back:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>您的資料</h1>
+    <a href="{{ url_for('personal') }}" id="back">返回個人頁面</a>
+
+    <!-- 錯誤訊息 -->
+    {% if error %}
+    <div style="color: red; margin-bottom: 20px; font-weight: bold;">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- 篩選表單 -->
+    <form class="filter-container" method="GET" action="{{ url_for('view_page') }}">
+        <div id="filter-groups">
+            <!-- 初始篩選條件 -->
+            <div class="filter-group">
+                <label for="filter_field">篩選條件：</label>
+                <select class="filter-field" name="filter_field[]" required>
+                    <option value="created_at">時間</option>
+                    <option value="weight">體重 (kg)</option>
+                    <option value="age">年齡</option>
+                    <option value="highBloodPressure">高血壓</option>
+                    <option value="highBloodSugar">高血糖</option>
+                    <option value="highCholesterol">高膽固醇</option>
+                    <option value="heavyAlcohol">大量飲酒</option>
+                    <option value="smoking">吸菸</option>
+                    <option value="stroke">中風</option>
+                    <option value="exercise">運動習慣</option>
+                </select>
+                <div class="filter-value-container">
+                    <input type="date" name="filter_start_date[]" placeholder="開始日期" required>
+                    <input type="date" name="filter_end_date[]" placeholder="結束日期" required>
+                </div>
+                <button type="button" class="remove-filter">移除</button>
+            </div>
+        </div>
+        <button type="button" id="add-filter">新增篩選條件</button>
+        <button type="submit" id="submit">篩選</button>
+        <button type="button" id="show-all">顯示所有資料</button>
+    </form>
+
+    <!-- 篩選結果表格 -->
+    {% if user_data %}
+    <table>
+        <thead>
+            <tr>
+                <th>記錄編號</th>
+                <th>時間</th>
+                <th>身高 (cm)</th>
+                <th>體重 (kg)</th>
+                <th>年齡</th>
+                <th>性別</th>
+                <th>高血壓</th>
+                <th>高血糖</th>
+                <th>高膽固醇</th>
+                <th>大量飲酒</th>
+                <th>吸菸</th>
+                <th>中風</th>
+                <th>運動習慣</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in user_data %}
+            <tr>
+                <td>{{ record.record_id }}</td>
+                <td>{{ record.created_at }}</td>
+                <td>{{ record.height }}</td>
+                <td>{{ record.weight }}</td>
+                <td>{{ record.age }}</td>
+                <td>{{ record.gender }}</td>
+                <td>{{ '是' if record.highBloodPressure else '否' }}</td>
+                <td>{{ '是' if record.highBloodSugar else '否' }}</td>
+                <td>{{ '是' if record.highCholesterol else '否' }}</td>
+                <td>{{ '是' if record.heavyAlcohol else '否' }}</td>
+                <td>{{ '是' if record.smoking else '否' }}</td>
+                <td>{{ '是' if record.stroke else '否' }}</td>
+                <td>{{ '是' if record.exercise else '否' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>找不到符合條件的資料。</p>
+    {% endif %}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterGroups = document.getElementById("filter-groups");
+            const addFilterButton = document.getElementById("add-filter");
+            const showAllButton = document.getElementById("show-all");
+
+            // 新增篩選條件
+            addFilterButton.addEventListener("click", function () {
+                const newFilterGroup = document.createElement("div");
+                newFilterGroup.classList.add("filter-group");
+
+                newFilterGroup.innerHTML = `
+                    <label>篩選條件：</label>
+                    <select class="filter-field" name="filter_field[]" required>
+                        <option value="created_at">時間</option>
+                        <option value="weight">體重 (kg)</option>
+                        <option value="age">年齡</option>
+                        <option value="highBloodPressure">高血壓</option>
+                        <option value="highBloodSugar">高血糖</option>
+                        <option value="highCholesterol">高膽固醇</option>
+                        <option value="heavyAlcohol">大量飲酒</option>
+                        <option value="smoking">吸菸</option>
+                        <option value="stroke">中風</option>
+                        <option value="exercise">運動習慣</option>
+                    </select>
+                    <div class="filter-value-container">
+                        <input type="date" name="filter_start_date[]" placeholder="開始日期" required>
+                        <input type="date" name="filter_end_date[]" placeholder="結束日期" required>
+                    </div>
+                    <button type="button" class="remove-filter">移除</button>
+                `;
+
+                newFilterGroup.querySelector(".remove-filter").addEventListener("click", function () {
+                    newFilterGroup.remove();
+                });
+
+                newFilterGroup.querySelector(".filter-field").addEventListener("change", updateFilterValueInput);
+
+                filterGroups.appendChild(newFilterGroup);
+            });
+
+            function updateFilterValueInput() {
+                const selectedField = this.value;
+                const filterValueContainer = this.parentElement.querySelector(".filter-value-container");
+
+                filterValueContainer.innerHTML = "";
+
+                if (selectedField === "created_at") {
+                    filterValueContainer.innerHTML = `
+                        <input type="date" name="filter_start_date[]" placeholder="開始日期" required>
+                        <input type="date" name="filter_end_date[]" placeholder="結束日期" required>
+                    `;
+                } else if (["age", "weight"].includes(selectedField)) {
+                    filterValueContainer.innerHTML = `
+                        <input type="number" name="filter_min[]" placeholder="最小值" required>
+                        <input type="number" name="filter_max[]" placeholder="最大值" required>
+                    `;
+                } else if (["highBloodPressure", "highBloodSugar", "highCholesterol", "heavyAlcohol", "smoking", "stroke", "exercise"].includes(selectedField)) {
+                    filterValueContainer.innerHTML = `
+                        <select name="filter_value[]" required>
+                            <option value="1">是</option>
+                            <option value="0">否</option>
+                        </select>
+                    `;
+                } else {
+                    filterValueContainer.innerHTML = `
+                        <input type="text" name="filter_value[]" placeholder="輸入篩選值" required>
+                    `;
+                }
+            }
+
+            document.querySelectorAll(".filter-field").forEach(field => {
+                field.addEventListener("change", updateFilterValueInput);
+            });
+
+            // 顯示所有資料
+            showAllButton.addEventListener("click", function () {
+                window.location.href = "{{ url_for('view_page') }}";
+            });
+        });
+    </script>
+</body>
+
+</html>

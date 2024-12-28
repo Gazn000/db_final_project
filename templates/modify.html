@@ -32,12 +32,24 @@
         a.button:hover {
             background-color: #45a049;
         }
+
+        #back {
+            display: inline-block;
+            margin: 20px;
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #back:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
 <body>
     <h1>修改您的資料</h1>
-    <a href="{{ url_for('personal') }}">返回個人資料頁面</a><br><br>
+    <a href="{{ url_for('personal') }}" id="back">返回個人頁面</a>
     {% if user_data %}
     <table>
         <thead>
@@ -54,6 +66,7 @@
                 <th>大量飲酒</th>
                 <th>吸菸</th>
                 <th>中風</th>
+                <th>運動習慣</th>
                 <th>修改</th>
             </tr>
         </thead>
@@ -72,6 +85,7 @@
                 <td>{{ '是' if record.heavyAlcohol else '否' }}</td>
                 <td>{{ '是' if record.smoking else '否' }}</td>
                 <td>{{ '是' if record.stroke else '否' }}</td>
+                <td>{{ '是' if record.exercise else '否'}}</td>
                 <!-- 修改按鈕傳遞 record_id -->
                 <td><a class="button" href="{{ url_for('update_page', record_id=record.record_id) }}">修改</a></td>
             </tr>
