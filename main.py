@@ -44,9 +44,9 @@ def initialize_database():
         );
     """)
     
-     # 創建 users 表
+     # 創建 HealthData 表
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
+        CREATE TABLE IF NOT EXISTS HealthData (
             id INT AUTO_INCREMENT PRIMARY KEY,
             record_id INT NOT NULL,
             account_id INT NOT NULL,
