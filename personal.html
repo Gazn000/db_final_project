@@ -1,6 +1,7 @@
 <!-- templates/personal.html -->
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,8 @@
             color: #333;
             margin: 0;
             padding: 0;
-            position: relative; /* 為了定位房子按鈕 */
+            position: relative;
+            /* 為了定位房子按鈕 */
         }
 
         .container {
@@ -23,7 +25,8 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             text-align: center;
-            position: relative; /* 保留相對定位 */
+            position: relative;
+            /* 保留相對定位 */
         }
 
         h2 {
@@ -55,15 +58,17 @@
 
         /* 房子按鈕樣式 */
         .home-button {
-            position: fixed; /* 固定在視窗 */
+            position: fixed;
+            /* 固定在視窗 */
             top: 20px;
             left: 20px;
-            background-color: #f4f4f9; /* 綠色背景 */
+            background-color: #f4f4f9;
+            /* 綠色背景 */
             color: white;
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 55px;
+            height: 55px;
             font-size: 20px;
             cursor: pointer;
             display: flex;
@@ -75,7 +80,8 @@
         }
 
         .home-button:hover {
-            background-color: #45a049; /* 深綠色 */
+            background-color: #45a049;
+            /* 深綠色 */
         }
 
         /* 響應式設計 */
@@ -91,8 +97,41 @@
                 font-size: 18px;
             }
         }
+
+        .logout-button {
+            background: linear-gradient(to right, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background: linear-gradient(to right, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .logout-button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 4px rgba(0, 0, 0, 0.1);
+        }
     </style>
+    <script>
+        function confirmLogout() {
+            if (confirm("確定要登出嗎？")) {
+                window.location.href = "{{ url_for('logout') }}";
+            }
+        }
+    </script>
 </head>
+
 <body>
     <!-- 房子按鈕，返回主頁 -->
     <a href="{{ url_for('main_page') }}" class="home-button" title="返回主頁">&#x1F3E0;</a> <!-- Unicode 房子圖示 🏠 -->
@@ -105,10 +144,14 @@
 
         <!-- 導航到 Create 頁面 -->
         <div class="signup-link">
-           <p><a href="{{ url_for('create_page') }}">新增</a> 您的資料</p>
-           <p><a href="{{ url_for('modify_page') }}">修改</a> 您的資料</p>
-           <p><a href="{{ url_for('delete_page') }}">刪除</a> 您的資料</p>
+            <p><a href="{{ url_for('create_page') }}">新增</a> 您的資料</p>
+            <p><a href="{{ url_for('modify_page') }}">修改</a> 您的資料</p>
+            <p><a href="{{ url_for('delete_page') }}">刪除</a> 您的資料</p>
         </div>
+
+        <!-- 登出按鈕 -->
+        <button class="logout-button" onclick="confirmLogout()">登出</button>
     </div>
 </body>
+
 </html>
