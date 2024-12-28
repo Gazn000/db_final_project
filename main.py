@@ -17,7 +17,7 @@ app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')  # 使用環境變�
 # 資料庫連線設定
 DB_HOST = os.getenv('DB_HOST', 'localhost')
 DB_USER = os.getenv('DB_USER', 'gazn')
-DB_PASS = os.getenv('DB_PASS', 'nycu112550141')
+DB_PASS = os.getenv('DB_PASS', 'your_password')
 DB_NAME = os.getenv('DB_NAME', 'final_project')
 
 # 資料庫連線函數
