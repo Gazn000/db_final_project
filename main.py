@@ -165,7 +165,7 @@ def create_page():
 def create_data():
     """
     從前端接收 JSON 格式的資料 (height, weight, age...等)，
-    並寫入 MySQL 資料庫的 users 表。
+    並寫入 MySQL 資料庫的 HealthData 表。
     """
     if "user_id" not in session:
         return jsonify({"error": "未登入，請先登入。"}), 401
@@ -184,14 +184,14 @@ def create_data():
         cursor = connection.cursor(dictionary=True)
 
         # 4. 查詢當前用戶的最大 record_id
-        cursor.execute("SELECT MAX(record_id) AS max_record FROM users WHERE account_id = %s", (account_id,))
+        cursor.execute("SELECT MAX(record_id) AS max_record FROM HealthData WHERE account_id = %s", (account_id,))
         result = cursor.fetchone()
         max_record = result['max_record'] if result['max_record'] is not None else 0
         new_record_id = max_record + 1
 
         # 5. 準備 SQL 指令，包含 account_id 和 record_id
         sql = """
-            INSERT INTO users (
+            INSERT INTO HealthData (
                 height,
                 weight,
                 age,
@@ -260,7 +260,7 @@ def view_page():
 
     try:
         # 初始化查詢條件
-        query = "SELECT * FROM users WHERE account_id = %s"
+        query = "SELECT * FROM HealthData WHERE account_id = %s"
         params = [user_id]
 
         filter_fields = request.args.getlist("filter_field[]")
@@ -369,7 +369,7 @@ def modify_page():
         cursor.execute("""
             SELECT record_id, height, weight, age, gender, highBloodPressure, highBloodSugar, 
                 highCholesterol, heavyAlcohol, smoking, stroke, exercise, created_at 
-            FROM users 
+            FROM HealthData 
             WHERE account_id = %s
             ORDER BY record_id DESC
         """, (user_id,))
@@ -401,9 +401,9 @@ def update_page(record_id):
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
         
-        # 獲取指定的 users 記錄
+        # 獲取指定的 HealthData 記錄
         cursor.execute("""
-            SELECT * FROM users 
+            SELECT * FROM HealthData 
             WHERE record_id = %s AND account_id = %s
         """, (record_id, user_id))
         user_data = cursor.fetchone()
@@ -428,7 +428,7 @@ def update_page(record_id):
 @app.route("/update", methods=["POST"])
 def update_data():
     """
-    接收 JSON 格式的資料，並更新 MySQL 資料庫的 `users` 表中的指定記錄。
+    接收 JSON 格式的資料，並更新 MySQL 資料庫的 `HealthData` 表中的指定記錄。
     """
     if "user_id" not in session:
         return jsonify({"error": "未登入，請先登入。"}), 401
@@ -456,7 +456,7 @@ def update_data():
 
         # 檢查記錄是否存在且屬於當前用戶
         cursor.execute(
-            "SELECT id FROM users WHERE record_id = %s AND account_id = %s",
+            "SELECT id FROM HealthData WHERE record_id = %s AND account_id = %s",
             (record_id, account_id)
         )
         exists = cursor.fetchone()
@@ -467,7 +467,7 @@ def update_data():
 
         # 更新 SQL，將 `updated_at` 設置為當前時間
         sql = """
-            UPDATE users SET
+            UPDATE HealthData SET
                 height = %s,
                 weight = %s,
                 age = %s,
@@ -664,7 +664,7 @@ def delete_page():
         cursor.execute("""
             SELECT record_id, height, weight, age, gender, highBloodPressure, highBloodSugar, 
                    highCholesterol, heavyAlcohol, smoking, stroke, exercise, created_at 
-            FROM users 
+            FROM HealthData 
             WHERE account_id = %s
             ORDER BY record_id DESC
         """, (user_id,))
@@ -696,7 +696,7 @@ def delete_user(record_id):
         cursor = connection.cursor()
         
         # 確認該記錄屬於當前用戶
-        cursor.execute("SELECT id FROM users WHERE record_id = %s AND account_id = %s", (record_id, user_id))
+        cursor.execute("SELECT id FROM HealthData WHERE record_id = %s AND account_id = %s", (record_id, user_id))
         record = cursor.fetchone()
         
         if not record:
@@ -706,7 +706,7 @@ def delete_user(record_id):
             return redirect(url_for('delete_page'))
         
         # 刪除該記錄
-        cursor.execute("DELETE FROM users WHERE record_id = %s AND account_id = %s", (record_id, user_id))
+        cursor.execute("DELETE FROM HealthData WHERE record_id = %s AND account_id = %s", (record_id, user_id))
         connection.commit()
         
         flash("資料已成功刪除。", "success")
@@ -732,7 +732,7 @@ def get_user_data_from_db():
            gender, highBloodPressure AS bp_category, 
            smoking AS smoke, heavyAlcohol AS alco, 
            highBloodSugar AS gluc, highCholesterol AS cholesterol, exercise AS active 
-    FROM users;
+    FROM HealthData;
     """
     user_data = pd.read_sql(query, connection)
     connection.close()
@@ -923,7 +923,7 @@ def predict_page():
         cursor = conn.cursor(dictionary=True)
         # 獲取用戶的最新資料
         cursor.execute("""
-            SELECT * FROM users
+            SELECT * FROM HealthData
             WHERE account_id = %s
             ORDER BY created_at DESC
             LIMIT 1
@@ -953,7 +953,7 @@ def predict():
         
         # 查詢當前用戶最新的數據（按 created_at 排序）
         cursor.execute("""
-            SELECT * FROM users
+            SELECT * FROM HealthData
             WHERE account_id = %s
             ORDER BY created_at DESC
             LIMIT 1
